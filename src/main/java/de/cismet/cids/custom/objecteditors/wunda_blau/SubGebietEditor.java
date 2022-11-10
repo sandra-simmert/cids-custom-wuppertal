@@ -16,7 +16,6 @@ import Sirius.navigator.connection.SessionManager;
 import Sirius.navigator.exception.ConnectionException;
 
 import Sirius.server.middleware.types.MetaObject;
-import Sirius.server.middleware.types.MetaObjectNode;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -42,7 +41,6 @@ import de.cismet.cids.client.tools.DevelopmentTools;
 
 import de.cismet.cids.custom.objecteditors.utils.BaumConfProperties;
 import de.cismet.cids.custom.objecteditors.wunda_blau.albo.ComboBoxFilterDialog;
-import de.cismet.cids.custom.wunda_blau.search.server.PoiLocationinstanceGeomSearch;
 import de.cismet.cids.custom.wunda_blau.search.server.RedundantObjectSearch;
 import de.cismet.cids.custom.wunda_blau.search.server.SubPoiLightweightSearch;
 
@@ -71,9 +69,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import javax.swing.plaf.basic.ComboPopup;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Binding;
@@ -128,19 +123,14 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
 
     //~ Instance fields --------------------------------------------------------
     private Boolean redundantName = false;
-    private SwingWorker worker_name;
 
     private final boolean editor;
     
-    private final PoiLocationinstanceGeomSearch poiSearch = new PoiLocationinstanceGeomSearch();
-    
-    private boolean comboboxesInited = false;
-    
+        
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private JButton btnAddPoi;
     FastBindableReferenceCombo cbGenau;
     private JComboBox cbGeom;
-    FastBindableReferenceCombo cbPoi;
     private ComboBoxFilterDialog comboBoxFilterDialogPoi;
     private JLabel lblBemerkung;
     private JLabel lblGenau;
@@ -188,22 +178,6 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         initComponents();
         
         setReadOnly();
-        if (isEditor()){
-            StaticSwingTools.decorateWithFixedAutoCompleteDecorator(cbPoi);
-            {
-                final JList pop = ((ComboPopup)cbPoi.getUI().getAccessibleChild(cbPoi, 0)).getList();
-                final JTextField txt = (JTextField)cbPoi.getEditor().getEditorComponent();
-                cbPoi.addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(final ActionEvent e) {
-                            final Object selectedValue = pop.getSelectedValue();
-                            txt.setText((selectedValue != null) ? String.valueOf(selectedValue) : "");
-                        }
-                    });
-            }
-        }
-        initComboboxes();
     }
 
     /**
@@ -225,8 +199,6 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         lblName = new JLabel();
         txtName = new JTextField();
         lblPoi = new JLabel();
-        new FastBindableReferenceCombo();
-        cbPoi = new FastBindableReferenceCombo();
         lblBemerkung = new JLabel();
         panBemerkung = new JPanel();
         scpBemerkung = new JScrollPane();
@@ -285,6 +257,7 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
@@ -295,30 +268,18 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         lblPoi.setText("Poi:");
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.insets = new Insets(2, 0, 2, 5);
         panDaten.add(lblPoi, gridBagConstraints);
 
-        cbPoi.setMaximumRowCount(20);
-        cbPoi.setModel(new LoadModelCb());
-        cbPoi.setRepresentationFields(new String[] {"name"});
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new Insets(2, 2, 2, 2);
-        panDaten.add(cbPoi, gridBagConstraints);
-
         lblBemerkung.setFont(new Font("Tahoma", 1, 11)); // NOI18N
         lblBemerkung.setText("Bemerkung:");
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -351,7 +312,8 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -364,7 +326,7 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         lblGenau.setText("Genauigkeit der Geometrie:");
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -379,7 +341,8 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
@@ -390,7 +353,7 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         lblGeom.setText("Geometrie:");
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -407,15 +370,11 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
             bindingGroup.addBinding(binding);
 
         }
-        cbGeom.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                cbGeomActionPerformed(evt);
-            }
-        });
         if (isEditor()){
             gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = 1;
-            gridBagConstraints.gridy = 6;
+            gridBagConstraints.gridy = 5;
+            gridBagConstraints.gridwidth = 2;
             gridBagConstraints.fill = GridBagConstraints.BOTH;
             gridBagConstraints.anchor = GridBagConstraints.WEST;
             gridBagConstraints.weightx = 1.0;
@@ -448,7 +407,8 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
-        gridBagConstraints.insets = new Insets(2, 0, 2, 5);
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new Insets(2, 2, 2, 5);
         panDaten.add(lblName1, gridBagConstraints);
 
         gridBagConstraints = new GridBagConstraints();
@@ -482,61 +442,6 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         bindingGroup.bind();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void cbGeomActionPerformed(ActionEvent evt) {//GEN-FIRST:event_cbGeomActionPerformed
-       /* if (isEditor()) {
-            SwingUtilities.invokeLater(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        final Geometry geom = (Geometry)getCidsBean().getProperty(FIELD__GEOREFERENZ__GEO_FIELD);
-                        new SwingWorker<List<CidsBean>, Void>() {
-
-                            @Override
-                            protected List<CidsBean> doInBackground() throws Exception {
-                                poiSearch.setGeom(geom);
-                                 final Collection<MetaObjectNode> mons = (Collection)SessionManager.getProxy()
-                                    .customServerSearch(SessionManager.getSession().getUser(),
-                                            poiSearch,
-                                            getConnectionContext());
-
-                                if (mons == null) {
-                                    cbPoi.setModel(new MustSetModelCb());
-                                    return null;
-                                }
-
-                                final List<CidsBean> beans = new ArrayList<>();
-                                for (final MetaObjectNode mon : mons) {
-
-                                    beans.add(SessionManager.getProxy().getMetaObject(
-                                            mon.getObjectId(),
-                                            mon.getClassId(),
-                                            "WUNDA_BLAU",
-                                            getConnectionContext()).getBean());
-                                }
-                                return beans;
-                                //cbPoi.refreshModel();
-                                //return null;
-                            }
-                            @Override
-                            protected void done() {
-                                try {
-                                    final List<CidsBean> beans = get();
-                                    if(beans.isEmpty()){
-                                        cbPoi.setModel(new MustSetModelCb());
-                                    }else{
-                                        cbPoi.setModel(new DefaultComboBoxModel<>(beans.toArray(new CidsBean[0])));
-                                    }
-                                } catch (final InterruptedException | ExecutionException ex) {
-                                    LOG.fatal(ex, ex);
-                                }
-                            }
-
-                        }.execute();
-                    }
-                });
-        }*/
-    }//GEN-LAST:event_cbGeomActionPerformed
-
     private void btnAddPoiActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnAddPoiActionPerformed
         if (getCidsBean() != null) {
             final Object selectedItem = comboBoxFilterDialogPoi.showAndGetSelected();
@@ -551,123 +456,7 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         }
     }//GEN-LAST:event_btnAddPoiActionPerformed
 
-    private void initComboboxes() {
-       /* new SwingWorker<Void, Void>() {
-
-                @Override
-                protected Void doInBackground() throws Exception {
-                    if (cbGeom != null) {
-                        final MetaClass mcGeom = ClassCacheMultiple.getMetaClass(
-                                "WUNDA_BLAU",
-                                "geom",
-                                getConnectionContext());
-                        ((DefaultCismapGeometryComboBoxEditor)cbGeom).setMetaClass(mcGeom);
-                    }
-                    final MetaClass mcPoi = ClassCacheMultiple.getMetaClass(
-                            "WUNDA_BLAU",
-                            "poi_locationinstance",
-                            getConnectionContext());
-                    cbPoi.setMetaClass(mcPoi);
-                    cbPoi.refreshModel();
-                    return null;
-                }
-
-                @Override
-                protected void done() {
-                    try {
-                        get();
-                    } catch (final InterruptedException | ExecutionException ex) {
-                        LOG.error(ex, ex);
-                    } finally {
-                        comboboxesInited = true;
-                        refreshPoiComboboxes();
-                    }
-                }
-            }.execute();*/
-    }
-    
-    private void loadPoiList(){
-        final SwingWorker<List<CidsBean>, Void> worker = new SwingWorker<List<CidsBean>, Void>() {
-            final Geometry geom = (Geometry)getCidsBean().getProperty(FIELD__GEOREFERENZ__GEO_FIELD);
-                        
-                    @Override
-                    protected List<CidsBean> doInBackground() throws Exception {
-                        poiSearch.setGeom(geom);
-                        poiSearch.setLimitAnz(10);
-                         final Collection<MetaObjectNode> mons = (Collection)SessionManager.getProxy()
-                            .customServerSearch(SessionManager.getSession().getUser(),
-                                    poiSearch,
-                                    getConnectionContext());
-
-                        if (mons == null) {
-                            cbPoi.setModel(new MustSetModelCb());
-                            return null;
-                        }
-
-                        final List<CidsBean> beans = new ArrayList<>();
-                        for (final MetaObjectNode mon : mons) {
-
-                            beans.add(SessionManager.getProxy().getMetaObject(
-                                    mon.getObjectId(),
-                                    mon.getClassId(),
-                                    "WUNDA_BLAU",
-                                    getConnectionContext()).getBean());
-                        }
-                        return beans;
-                    }
-                    @Override
-                    protected void done() {
-                        try {
-                            final List<CidsBean> beans = get();
-                            if(beans.isEmpty()){
-                                cbPoi.setModel(new MustSetModelCb());
-                            }else{
-                                cbPoi.setModel(new DefaultComboBoxModel<>(beans.toArray(new CidsBean[0])));
-                            }
-                        } catch (final InterruptedException | ExecutionException ex) {
-                            LOG.fatal(ex, ex);
-                        }
-                    }
-
-        };
-        if (worker_name != null) {
-            worker_name.cancel(true);
-        }
-        worker_name = worker;
-        worker_name.execute();
-            
-    }
-    
-    private void refreshPoiComboboxes() {
-        if (comboboxesInited && (getCidsBean() != null)) {
-            synchronized (this) {
-                new SwingWorker<CidsBean, Void>() {
-
-                        @Override
-                        protected CidsBean doInBackground() throws Exception {
-                            final Geometry geom = (Geometry)getCidsBean().getProperty(FIELD__GEOREFERENZ__GEO_FIELD);
-                            if (getCidsBean() != null) {
-                                poiSearch.setLimitAnz(10);
-                                poiSearch.setGeom(geom);
-                            }
-                            cbPoi.refreshModel();
-                            return null;
-                        }
-
-                        @Override
-                        protected void done() {
-                            try {
-                                final CidsBean strasseBean = get();
-                                repaint();
-                            } catch (final InterruptedException | ExecutionException ex) {
-                                LOG.error(ex, ex);
-                            } 
-                        }
-                    }.execute();
-            }
-        }
-    }
-    
+     
     public boolean isEditor() {
         return this.editor;
     }
@@ -714,7 +503,6 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
      */
     private void setReadOnly() {
         if (!(isEditor())) {
-            cbPoi.setEnabled(false);
             cbGenau.setEnabled(false);
             txtName.setEnabled(false);
             taBemerkung.setEnabled(false);

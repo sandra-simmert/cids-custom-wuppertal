@@ -43,6 +43,7 @@ import java.util.MissingResourceException;
 import javax.swing.*;
 
 import de.cismet.cids.client.tools.DevelopmentTools;
+import de.cismet.cids.custom.clientutils.HexcolorFormatter;
 import de.cismet.cids.custom.objecteditors.utils.RendererTools;
 
 import de.cismet.cids.custom.wunda_blau.search.server.RedundantObjectSearch;
@@ -67,6 +68,8 @@ import de.cismet.tools.gui.RoundedPanel;
 import de.cismet.tools.gui.StaticSwingTools;
 import de.cismet.tools.gui.log4jquickconfig.Log4JQuickConfig;
 import java.awt.Dimension;
+import java.util.Arrays;
+import java.util.List;
 /**
  * DOCUMENT ME!
  *
@@ -81,17 +84,21 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
     private static final Logger LOG = Logger.getLogger(SubUnterkategorieEditor.class);
     public static final String REDUNDANT_TOSTRING_TEMPLATE = "%s";
     public static final String[] REDUNDANT_TOSTRING_FIELDS = { "name", "id" };
-    public static final String REDUNDANT_TABLE = "sub_kategorie";
+    public static final String REDUNDANT_TABLE = "sub_unterkategorie";
     
     private static DefaultBindableReferenceCombo.Option SORTING_OPTION =
         new DefaultBindableReferenceCombo.SortingColumnOption("name");
 
     public static final String FIELD__NAME = "name";                                        // sub_Unterkategorie
+    public static final String FIELD__KANN = "arr_weitere_info_kann";                       // sub_Unterkategorie
+    public static final String FIELD__MUSS = "arr_weitere_info_muss";                       // sub_Unterkategorie
     public static final String FIELD__ID = "id";                                            // sub_Kategorie
     public static final String TABLE_NAME = "sub_unterkategorie";
 
     public static final String BUNDLE_NONAME = "SubUnterkategorieEditor.isOkForSaving().noName";
     public static final String BUNDLE_DUPLICATENAME = "SubUnterkategorieEditor.isOkForSaving().duplicateName";
+    public static final String BUNDLE_NOFARBE = "SubUnterkategorieEditor.isOkForSaving().noFarbe";
+    public static final String BUNDLE_NOSIGNATUR = "SubUnterkategorieEditor.isOkForSaving().noSignatur";
     public static final String BUNDLE_PANE_PREFIX = "SubUnterkategorieEditor.isOkForSaving().JOptionPane.message.prefix";
     public static final String BUNDLE_PANE_SUFFIX = "SubUnterkategorieEditor.isOkForSaving().JOptionPane.message.suffix";
     public static final String BUNDLE_PANE_TITLE = "SubUnterkategorieEditor.isOkForSaving().JOptionPane.title";
@@ -104,8 +111,9 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
     //~ Instance fields --------------------------------------------------------
     private Boolean redundantName = false;
     private SwingWorker worker_name;
-
+    private final Collection<DefaultBindableLabelsPanel> labelsPanels = new ArrayList<>();
     private final boolean editor;
+    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private DefaultBindableLabelsPanel blpKann;
@@ -122,7 +130,7 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
     private JLabel lblSignatur;
     private JPanel panContent;
     private JPanel panKategorie;
-    private JTextField txtFarbe;
+    private JFormattedTextField txtFarbe;
     private JTextField txtName;
     private JTextField txtSignatur;
     private BindingGroup bindingGroup;
@@ -154,6 +162,9 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
         super.initWithConnectionContext(connectionContext);
         initProperties();
         initComponents();
+        for (final DefaultBindableLabelsPanel labelsPanel : Arrays.asList(blpKann, blpMuss)) {
+            labelsPanel.initWithConnectionContext(getConnectionContext());
+        }
         
         setReadOnly();
     }
@@ -173,7 +184,6 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
         lblName = new JLabel();
         txtName = new JTextField();
         lblFarbe = new JLabel();
-        txtFarbe = new JTextField();
         lblSignatur = new JLabel();
         txtSignatur = new JTextField();
         lblMuss = new JLabel();
@@ -184,6 +194,7 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
         cbGeometrietyp = new FastBindableReferenceCombo();
         lblKategorie = new JLabel();
         cbKategorie = new FastBindableReferenceCombo();
+        txtFarbe = new JFormattedTextField(new HexcolorFormatter());
         filler1 = new Box.Filler(new Dimension(0, 0), new Dimension(0, 0), new Dimension(0, 0));
 
         setLayout(new GridBagLayout());
@@ -229,18 +240,6 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
         gridBagConstraints.insets = new Insets(2, 0, 2, 5);
         panKategorie.add(lblFarbe, gridBagConstraints);
 
-        binding = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${cidsBean.farbe}"), txtFarbe, BeanProperty.create("text"));
-        bindingGroup.addBinding(binding);
-
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new Insets(2, 2, 2, 2);
-        panKategorie.add(txtFarbe, gridBagConstraints);
-
         lblSignatur.setFont(new Font("Tahoma", 1, 11)); // NOI18N
         lblSignatur.setText("Signatur:");
         gridBagConstraints = new GridBagConstraints();
@@ -279,6 +278,8 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
         blpMuss.setOpaque(false);
 
         binding = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${cidsBean.arr_weitere_info_muss}"), blpMuss, BeanProperty.create("selectedElements"));
+        binding.setSourceNullValue(null);
+        binding.setSourceUnreadableValue(null);
         bindingGroup.addBinding(binding);
 
         gridBagConstraints = new GridBagConstraints();
@@ -304,6 +305,12 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
 
         blpKann.setEnabled(false);
         blpKann.setOpaque(false);
+
+        binding = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${cidsBean.arr_weitere_info_kann}"), blpKann, BeanProperty.create("selectedElements"));
+        binding.setSourceNullValue(null);
+        binding.setSourceUnreadableValue(null);
+        bindingGroup.addBinding(binding);
+
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 6;
@@ -366,6 +373,17 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
         gridBagConstraints.insets = new Insets(2, 2, 2, 2);
         panKategorie.add(cbKategorie, gridBagConstraints);
 
+        binding = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${cidsBean.farbe}"), txtFarbe, BeanProperty.create("value"));
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new Insets(2, 2, 2, 2);
+        panKategorie.add(txtFarbe, gridBagConstraints);
+
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -413,6 +431,9 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
                 LOG.info("remove propchange sub_unterkategorie: " + getCidsBean());
                 getCidsBean().removePropertyChangeListener(this);
             }
+            labelsPanels.clear();
+            blpKann.clear();
+            blpMuss.clear();
             bindingGroup.unbind();
             this.cidsBean = cb;
             if (isEditor() && (getCidsBean() != null)) {
@@ -427,6 +448,9 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
                 getConnectionContext());
             bindingGroup.bind();
             setTitle(getTitle());
+            if (getCidsBean() != null){
+                labelsPanels.addAll(Arrays.asList(blpKann, blpMuss));
+            }
             
         } catch (Exception ex) {
             LOG.error("Bean not set", ex);
@@ -494,6 +518,8 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
     
     @Override
     public void dispose() { 
+        labelsPanels.clear();
+        setCidsBean(null);
     }
 
     @Override
@@ -505,7 +531,54 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
 
     @Override
     public void propertyChange(final PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals(FIELD__NAME)) {
+        switch (evt.getPropertyName()) {
+            case FIELD__KANN: {
+                if(evt.getNewValue() != evt.getOldValue()){
+                    final List<CidsBean> listKann = (List<CidsBean>)getCidsBean().getProperty(FIELD__KANN);
+                    List<CidsBean> listMuss = (List<CidsBean>) getCidsBean().getProperty(FIELD__MUSS);
+                    List <CidsBean> listMussNeu = new ArrayList<>();
+                    for (CidsBean mussBean:listMuss){
+                        if (listKann.contains(mussBean)){
+                            listMussNeu.add(mussBean);
+                        }
+                    }
+                    if (!listMussNeu.equals(listMuss)){
+                        try{
+                            //blpMuss.setSelectedElements(listMussNeu);
+                            //blpMuss.reload(true);
+                            if(listMussNeu.isEmpty()){
+                                listMuss.clear();
+                            } else {
+                                listMuss.retainAll(listMussNeu);
+                            }
+                            blpMuss.reload(true);
+                        } catch (Exception ex){
+                            LOG.error("Bean (muss) not set", ex);
+                        }
+                    }
+                }
+            }
+            case FIELD__MUSS: {
+                if(evt.getNewValue() != evt.getOldValue()){
+                    final List<CidsBean> listKann = (List<CidsBean>)getCidsBean().getProperty(FIELD__KANN);
+                    List<CidsBean> listMuss = (List<CidsBean>) getCidsBean().getProperty(FIELD__MUSS);
+                    List <CidsBean> listKannNeu = new ArrayList<>();
+                    List <CidsBean> listKannAdd = new ArrayList<>();
+                    for (CidsBean kannBean:listMuss){
+                        if (!listKann.contains(kannBean)){
+                            listKannAdd.add(kannBean);
+                        }
+                    }
+                    if (!listKannAdd.isEmpty()){
+                        listKannNeu.addAll(listKann);
+                        listKannNeu.addAll(listKannAdd);
+                        //blpKann.setSelectedElements(listKannNeu);
+                        //blpKann.reload(true);
+                       listKann.addAll(listKannAdd);
+                       blpKann.reload(true);
+                    }
+                }
+            }
         }
     }
 
@@ -531,6 +604,28 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
             }
         } catch (final MissingResourceException ex) {
             LOG.warn("Name not given.", ex);
+            save = false;
+        }
+        // farbe vorhanden
+        try {
+            if (txtFarbe.getText().trim().isEmpty()) {
+                LOG.warn("No color specified. Skip persisting.");
+                errorMessage.append(NbBundle.getMessage(SubKategorieEditor.class, BUNDLE_NOFARBE));
+                save = false;
+            } 
+        } catch (final MissingResourceException ex) {
+            LOG.warn("Color not given.", ex);
+            save = false;
+        }
+        // Signatur vorhanden
+        try {
+            if (txtSignatur.getText().trim().isEmpty()) {
+                LOG.warn("No signatur specified. Skip persisting.");
+                errorMessage.append(NbBundle.getMessage(SubKategorieEditor.class, BUNDLE_NOSIGNATUR));
+                save = false;
+            } 
+        } catch (final MissingResourceException ex) {
+            LOG.warn("Color not given.", ex);
             save = false;
         }
             

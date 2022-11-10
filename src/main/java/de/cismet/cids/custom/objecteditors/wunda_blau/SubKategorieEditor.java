@@ -43,6 +43,7 @@ import java.util.MissingResourceException;
 import javax.swing.*;
 
 import de.cismet.cids.client.tools.DevelopmentTools;
+import de.cismet.cids.custom.clientutils.HexcolorFormatter;
 
 import de.cismet.cids.custom.wunda_blau.search.server.RedundantObjectSearch;
 
@@ -86,6 +87,8 @@ public class SubKategorieEditor extends DefaultCustomObjectEditor implements Cid
 
     public static final String BUNDLE_NONAME = "SubKategorieEditor.isOkForSaving().noName";
     public static final String BUNDLE_DUPLICATENAME = "SubKategorieEditor.isOkForSaving().duplicateName";
+    public static final String BUNDLE_NOFARBE = "SubKategorieEditor.isOkForSaving().noFarbe";
+    public static final String BUNDLE_NOSIGNATUR = "SubKategorieEditor.isOkForSaving().noSignatur";
     public static final String BUNDLE_PANE_PREFIX = "SubKategorieEditor.isOkForSaving().JOptionPane.message.prefix";
     public static final String BUNDLE_PANE_SUFFIX = "SubKategorieEditor.isOkForSaving().JOptionPane.message.suffix";
     public static final String BUNDLE_PANE_TITLE = "SubKategorieEditor.isOkForSaving().JOptionPane.title";
@@ -108,7 +111,7 @@ public class SubKategorieEditor extends DefaultCustomObjectEditor implements Cid
     private JLabel lblSignatur;
     private JPanel panContent;
     private JPanel panKategorie;
-    private JTextField txtFarbe;
+    private JFormattedTextField txtFarbe;
     private JTextField txtName;
     private JTextField txtSignatur;
     private BindingGroup bindingGroup;
@@ -159,9 +162,9 @@ public class SubKategorieEditor extends DefaultCustomObjectEditor implements Cid
         lblName = new JLabel();
         txtName = new JTextField();
         lblFarbe = new JLabel();
-        txtFarbe = new JTextField();
         lblSignatur = new JLabel();
         txtSignatur = new JTextField();
+        txtFarbe = new JFormattedTextField(new HexcolorFormatter());
         filler1 = new Box.Filler(new Dimension(0, 0), new Dimension(0, 0), new Dimension(0, 0));
 
         setLayout(new GridBagLayout());
@@ -206,14 +209,6 @@ public class SubKategorieEditor extends DefaultCustomObjectEditor implements Cid
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.insets = new Insets(2, 0, 2, 5);
         panKategorie.add(lblFarbe, gridBagConstraints);
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new Insets(2, 2, 2, 2);
-        panKategorie.add(txtFarbe, gridBagConstraints);
 
         lblSignatur.setFont(new Font("Tahoma", 1, 11)); // NOI18N
         lblSignatur.setText("Signatur:");
@@ -238,6 +233,17 @@ public class SubKategorieEditor extends DefaultCustomObjectEditor implements Cid
         gridBagConstraints.insets = new Insets(2, 2, 2, 2);
         panKategorie.add(txtSignatur, gridBagConstraints);
 
+        binding = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${cidsBean.farbe}"), txtFarbe, BeanProperty.create("value"));
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new Insets(2, 2, 2, 2);
+        panKategorie.add(txtFarbe, gridBagConstraints);
+
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -249,7 +255,7 @@ public class SubKategorieEditor extends DefaultCustomObjectEditor implements Cid
         panContent.add(panKategorie, gridBagConstraints);
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -393,6 +399,28 @@ public class SubKategorieEditor extends DefaultCustomObjectEditor implements Cid
             }
         } catch (final MissingResourceException ex) {
             LOG.warn("Name not given.", ex);
+            save = false;
+        }
+        // farbe vorhanden
+        try {
+            if (txtFarbe.getText().trim().isEmpty()) {
+                LOG.warn("No color specified. Skip persisting.");
+                errorMessage.append(NbBundle.getMessage(SubKategorieEditor.class, BUNDLE_NOFARBE));
+                save = false;
+            } 
+        } catch (final MissingResourceException ex) {
+            LOG.warn("Color not given.", ex);
+            save = false;
+        }
+        // Signatur vorhanden
+        try {
+            if (txtSignatur.getText().trim().isEmpty()) {
+                LOG.warn("No signatur specified. Skip persisting.");
+                errorMessage.append(NbBundle.getMessage(SubKategorieEditor.class, BUNDLE_NOSIGNATUR));
+                save = false;
+            } 
+        } catch (final MissingResourceException ex) {
+            LOG.warn("Color not given.", ex);
             save = false;
         }
             
