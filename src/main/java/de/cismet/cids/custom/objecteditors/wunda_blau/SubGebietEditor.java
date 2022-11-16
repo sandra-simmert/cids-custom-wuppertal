@@ -39,7 +39,7 @@ import javax.swing.*;
 
 import de.cismet.cids.client.tools.DevelopmentTools;
 
-import de.cismet.cids.custom.objecteditors.utils.BaumConfProperties;
+import de.cismet.cids.custom.objecteditors.utils.SubConfProperties;
 import de.cismet.cids.custom.objecteditors.wunda_blau.albo.ComboBoxFilterDialog;
 import de.cismet.cids.custom.wunda_blau.search.server.RedundantObjectSearch;
 import de.cismet.cids.custom.wunda_blau.search.server.SubPoiLightweightSearch;
@@ -132,6 +132,7 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
     FastBindableReferenceCombo cbGenau;
     private JComboBox cbGeom;
     private ComboBoxFilterDialog comboBoxFilterDialogPoi;
+    private CustomLagePanel customLagePanel;
     private JLabel lblBemerkung;
     private JLabel lblGenau;
     private JLabel lblGeom;
@@ -144,7 +145,6 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
     private JPanel panGebiet;
     private JPanel panGeometrie;
     private JScrollPane scpBemerkung;
-    private BaumLagePanel subLagePanel;
     private JTextArea taBemerkung;
     private JTextField txtName;
     private BindingGroup bindingGroup;
@@ -194,7 +194,7 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         panContent = new RoundedPanel();
         panGebiet = new JPanel();
         panGeometrie = new JPanel();
-        subLagePanel = new BaumLagePanel();
+        customLagePanel = new CustomLagePanel();
         panDaten = new JPanel();
         lblName = new JLabel();
         txtName = new JTextField();
@@ -224,10 +224,12 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         panGeometrie.setOpaque(false);
         panGeometrie.setLayout(new GridBagLayout());
         gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        panGeometrie.add(subLagePanel, gridBagConstraints);
+        panGeometrie.add(customLagePanel, gridBagConstraints);
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -514,15 +516,19 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
      * DOCUMENT ME!
      */
     private void setMapWindow() {
-        String mapUrl = null;
+         String mapUrl = null;
+        Double buffer = 0.0;
         try {
-            mapUrl = BaumConfProperties.getInstance().getUrlDefault();
+            mapUrl = SubConfProperties.getInstance().getMapUrl();
+            buffer = SubConfProperties.getInstance().getBufferMeter();
         } catch (final Exception ex) {
             LOG.warn("Get no conf properties.", ex);
         }
-        subLagePanel.setMapWindow(getCidsBean(),
+        customLagePanel.setMapWindow(getCidsBean(),
             getConnectionContext(),
-            mapUrl);
+            mapUrl,
+            buffer,
+            FIELD__GEOREFERENZ);
     }
 
     /**
@@ -570,7 +576,7 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
     
     @Override
     public void dispose() {
-        subLagePanel.dispose();
+        customLagePanel.dispose();
         if (isEditor()) {
             ((DefaultCismapGeometryComboBoxEditor)cbGeom).dispose();
         } 
