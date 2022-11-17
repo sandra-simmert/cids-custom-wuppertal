@@ -18,8 +18,11 @@ import Sirius.server.middleware.types.MetaClass;
 
 import Sirius.server.middleware.types.MetaObject;
 import Sirius.server.middleware.types.MetaObjectNode;
+import com.vividsolutions.jts.geom.Coordinate;
 
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.PrecisionModel;
 
 import org.apache.log4j.Logger;
 
@@ -69,11 +72,14 @@ import de.cismet.cids.custom.objecteditors.utils.SubConfProperties;
 import de.cismet.cids.custom.objecteditors.utils.TableUtils;
 import de.cismet.cids.custom.objecteditors.wunda_blau.albo.ComboBoxFilterDialog;
 import de.cismet.cids.custom.objectrenderer.utils.CidsBeanSupport;
+import de.cismet.cids.custom.wunda_blau.search.server.AbstractMonToLwmoSearch;
 import de.cismet.cids.custom.wunda_blau.search.server.BaumAnsprechpartnerLightweightSearch;
 import de.cismet.cids.custom.wunda_blau.search.server.BaumFotosDokLightweightSearch;
 import de.cismet.cids.custom.wunda_blau.search.server.RedundantObjectSearch;
 import de.cismet.cids.custom.wunda_blau.search.server.SubGebietLightweightSearch;
 import de.cismet.cids.custom.wunda_blau.search.server.SubGebieteNextSearch;
+import de.cismet.cids.custom.wunda_blau.search.server.SubObjectGeomLightweightSearch;
+import de.cismet.cids.custom.wunda_blau.search.server.SubObjectGeomSearch;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -144,6 +150,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
     public static final String FIELD__GEOREFERENZ_POLY = "fk_geom_polygon";                 // sub_object
     public static final String FIELD__UNTERKATEGORIE = "fk_unterkategorie";                 // sub_object
     public static final String FIELD__GEBIET = "arr_gebiet";                                // sub_object
+    public static final String FIELD__OBJECT = "arr_object";                                // sub_object
     public static final String FIELD__GEOM_POINT = "fk_geom_point.geo_field";                // sub_object-geom
     public static final String FIELD__FOTONAME = "name";                                    // sub_fotos
     public static final String FIELD__UNTERKATEGORIE_GEOMTYP = "fk_unterkategorie.fk_geometrietyp"; 
@@ -166,13 +173,26 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
     public static final String BUNDLE_GEBIET_QUESTION =
         "SubObjectEditor.btnRemoveGebietActionPerformed().question";
     public static final String BUNDLE_GEBIET_TITLE = "SubObjectEditor.btnRemoveGebietActionPerformed().title";
+    public static final String BUNDLE_OBJECT_QUESTION =
+        "SubObjectEditor.btnRemoveObjectActionPerformed().question";
+    public static final String BUNDLE_OBJECT_TITLE = "SubObjectEditor.btnRemoveObjectActionPerformed().title";
     public static final String BUNDLE_GEBIET_ERRORTITLE =
         "SubObjectEditor.btnRemoveGebietActionPerformed().errortitle";
     public static final String BUNDLE_GEBIET_ERRORTEXT =
         "SubObjectEditor.btnRemoveGebietActionPerformed().errortext";
+    public static final String BUNDLE_OBJECT_ERRORTITLE =
+        "SubObjectEditor.btnRemoveObjectActionPerformed().errortitle";
+    public static final String BUNDLE_OBJECT_ERRORTEXT =
+        "SubObjectEditor.btnRemoveObjectActionPerformed().errortext";
     public static final String BUNDLE_PANE_TITLE = "SubObjectEditor.isOkForSaving().JOptionPane.title";
     public static final String BUNDLE_PANE_PREFIX_GEBIET =
         "SubObjectEditor.btnCreateGebieteActionPerformed().JOptionPane.message.prefix";
+    public static final String BUNDLE_PANE_PREFIX_OBJECT =
+        "SubObjectEditor.btnAddObjectActionPerformed().JOptionPane.message.prefix";
+    public static final String BUNDLE_PANE_TITLE_OBJECT =
+        "SubObjectEditor.btnAddObjectActionPerformed().JOptionPane.title.add";
+    public static final String BUNDLE_PANE_OBJECT =
+        "SubObjectEditor.btnAddObjectActionPerformed().JOptionPane.message.add";
     public static final String BUNDLE_PANE_TITLE_GEBIET =
         "SubObjectEditor.btnCreateGebieteActionPerformed().JOptionPane.title.add";
     public static final String BUNDLE_PANE_GEBIET =
@@ -181,6 +201,10 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         "SubObjectEditor.btnDeleteGebieteActionPerformed().JOptionPane.message";
     public static final String BUNDLE_PANE_TITLE_DEL =
         "SubObjectEditor.btnDeleteGebieteActionPerformed().JOptionPane.title";
+    public static final String BUNDLE_PANE_MESSAGE_DEL_OBJECT =
+        "SubObjectEditor.btnDeleteObjectsActionPerformed().JOptionPane.message";
+    public static final String BUNDLE_PANE_TITLE_DEL_OBJECT =
+        "SubObjectEditor.btnDeleteObjectsActionPerformed().JOptionPane.title";
     public static final String BUNDLE_PANE_MESSAGE_ADD =
         "SubObjectEditor.btnCreateGebieteActionPerformed().JOptionPane.message";
     public static final String BUNDLE_PANE_TITLE_ADD =
@@ -214,6 +238,9 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
 
     //~ Instance fields --------------------------------------------------------
     private final BaumFotosDokLightweightSearch searchFotosDok;
+    private SubObjectGeomLightweightSearch searchObjectGeomLw;
+
+    private SubObjectGeomSearch searchObjectGeom;
     
     private Boolean redundantName = false;
     private SwingWorker worker_name;
@@ -222,11 +249,12 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private JButton btnAddGebiet;
-    private JButton btnAddObjekt;
+    private JButton btnAddObject;
     private JButton btnCreateGebiete;
     private JButton btnDeleteGebiete;
+    private JButton btnDeleteObjects;
     private JButton btnRemGebiet;
-    private JButton btnRemoveObjekt;
+    private JButton btnRemObject;
     private JComboBox cbLine;
     private JComboBox cbPoint;
     private JComboBox cbPolygon;
@@ -241,10 +269,10 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
     DefaultBindableDateChooser dcDatum;
     DefaultBindableDateChooser dcDatum1;
     private Box.Filler filler2;
-    private Box.Filler filler3;
     private Box.Filler filler4;
     private Box.Filler filler5;
     private Box.Filler filler6;
+    private Box.Filler filler7;
     private JLabel jLabel2;
     private JPanel jPanel1;
     private JPanel jPanel2;
@@ -284,7 +312,6 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
     private JList lstGebiet;
     private JList lstObjekt;
     private JList lstPages;
-    private JPanel panButtonsObjekt;
     private JPanel panContent;
     private JPanel panDaten;
     private JPanel panGebiet;
@@ -294,6 +321,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
     private JPanel panGeometriePolygon;
     private JPanel panInfo;
     private JPanel panObject;
+    private JPanel panObjectAdd;
     private JPanel panObjekt;
     private JPanel panOffen;
     private JPanel pnlBild;
@@ -336,6 +364,10 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
      * @param  boolEditor  DOCUMENT ME!
      */
     public SubObjectEditor(final boolean boolEditor) {
+        this.searchObjectGeom = new SubObjectGeomSearch();
+        //searchObjectGeom.setGebietId(2);
+        searchObjectGeom.setPoint(new Point(new Coordinate(374483,5680933,0),new PrecisionModel(), 25832 ));
+        this.searchObjectGeomLw = new SubObjectGeomLightweightSearch(searchObjectGeom);
         this.editor = boolEditor;
         searchFotosDok = new BaumFotosDokLightweightSearch(
                 FOTOS_TOSTRING_TEMPLATE,
@@ -413,7 +445,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         bindingGroup = new BindingGroup();
 
         comboBoxFilterDialogGebiet = new ComboBoxFilterDialog(null, new SubGebietLightweightSearch(), "Gebiet auswählen", getConnectionContext());
-        comboBoxFilterDialogObject = new ComboBoxFilterDialog(null, new BaumAnsprechpartnerLightweightSearch(), "Ansprechpartner/Melder auswählen", getConnectionContext());
+        comboBoxFilterDialogObject = new ComboBoxFilterDialog(null, searchObjectGeomLw, "Object auswählen", getConnectionContext(), true);
         panContent = new RoundedPanel();
         panObject = new JPanel();
         pnlCard1 = new JPanel();
@@ -464,10 +496,11 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         panObjekt = new JPanel();
         scpLstObjekt = new JScrollPane();
         lstObjekt = new JList();
-        panButtonsObjekt = new JPanel();
-        btnAddObjekt = new JButton();
-        btnRemoveObjekt = new JButton();
-        filler3 = new Box.Filler(new Dimension(0, 0), new Dimension(0, 0), new Dimension(0, 32767));
+        panObjectAdd = new JPanel();
+        btnAddObject = new JButton();
+        btnRemObject = new JButton();
+        filler7 = new Box.Filler(new Dimension(0, 0), new Dimension(0, 0), new Dimension(0, 32767));
+        btnDeleteObjects = new JButton();
         filler2 = new Box.Filler(new Dimension(0, 0), new Dimension(0, 0), new Dimension(0, 32767));
         jPanelWeitInfo = new JPanel();
         panInfo = new JPanel();
@@ -990,6 +1023,11 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         lstObjekt.setFont(new Font("Dialog", 0, 12)); // NOI18N
         lstObjekt.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         lstObjekt.setVisibleRowCount(4);
+
+        eLProperty = ELProperty.create("${cidsBean.arr_object}");
+        jListBinding = SwingBindings.createJListBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, eLProperty, lstObjekt);
+        bindingGroup.addBinding(jListBinding);
+
         scpLstObjekt.setViewportView(lstObjekt);
 
         gridBagConstraints = new GridBagConstraints();
@@ -1004,36 +1042,69 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         gridBagConstraints.insets = new Insets(2, 2, 2, 2);
         panObjekt.add(scpLstObjekt, gridBagConstraints);
 
-        panButtonsObjekt.setOpaque(false);
-        panButtonsObjekt.setLayout(new GridBagLayout());
+        panObjectAdd.setAlignmentX(0.0F);
+        panObjectAdd.setAlignmentY(1.0F);
+        panObjectAdd.setFocusable(false);
+        panObjectAdd.setOpaque(false);
+        panObjectAdd.setLayout(new GridBagLayout());
 
-        btnAddObjekt.setIcon(new ImageIcon(getClass().getResource("/de/cismet/cids/custom/objecteditors/wunda_blau/edit_add_mini.png"))); // NOI18N
-        btnAddObjekt.addActionListener(new ActionListener() {
+        btnAddObject.setIcon(new ImageIcon(getClass().getResource("/de/cismet/cids/custom/objecteditors/wunda_blau/edit_add_mini.png"))); // NOI18N
+        btnAddObject.setBorderPainted(false);
+        btnAddObject.setContentAreaFilled(false);
+        btnAddObject.setFocusPainted(false);
+        btnAddObject.setMaximumSize(new Dimension(45, 22));
+        btnAddObject.setMinimumSize(new Dimension(45, 22));
+        btnAddObject.setPreferredSize(new Dimension(45, 22));
+        btnAddObject.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                btnAddObjektActionPerformed(evt);
+                btnAddObjectActionPerformed(evt);
             }
         });
         gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.insets = new Insets(0, 0, 2, 0);
-        panButtonsObjekt.add(btnAddObjekt, gridBagConstraints);
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new Insets(2, 2, 2, 2);
+        panObjectAdd.add(btnAddObject, gridBagConstraints);
 
-        btnRemoveObjekt.setIcon(new ImageIcon(getClass().getResource("/de/cismet/cids/custom/objecteditors/wunda_blau/edit_remove_mini.png"))); // NOI18N
-        btnRemoveObjekt.addActionListener(new ActionListener() {
+        btnRemObject.setIcon(new ImageIcon(getClass().getResource("/de/cismet/cids/custom/objecteditors/wunda_blau/edit_remove_mini.png"))); // NOI18N
+        btnRemObject.setBorderPainted(false);
+        btnRemObject.setContentAreaFilled(false);
+        btnRemObject.setFocusPainted(false);
+        btnRemObject.setMaximumSize(new Dimension(45, 22));
+        btnRemObject.setMinimumSize(new Dimension(45, 22));
+        btnRemObject.setPreferredSize(new Dimension(45, 22));
+        btnRemObject.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                btnRemoveObjektActionPerformed(evt);
+                btnRemObjectActionPerformed(evt);
             }
         });
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new Insets(0, 0, 2, 0);
-        panButtonsObjekt.add(btnRemoveObjekt, gridBagConstraints);
+        gridBagConstraints.insets = new Insets(2, 2, 2, 2);
+        panObjectAdd.add(btnRemObject, gridBagConstraints);
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.weighty = 1.0;
-        panButtonsObjekt.add(filler3, gridBagConstraints);
+        panObjectAdd.add(filler7, gridBagConstraints);
+
+        btnDeleteObjects.setIcon(new ImageIcon(getClass().getResource("/de/cismet/cids/custom/objecteditors/wunda_blau/edit-delete.png"))); // NOI18N
+        btnDeleteObjects.setToolTipText("Standorte entfernen");
+        btnDeleteObjects.setMaximumSize(new Dimension(45, 21));
+        btnDeleteObjects.setMinimumSize(new Dimension(45, 21));
+        btnDeleteObjects.setPreferredSize(new Dimension(45, 28));
+        btnDeleteObjects.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnDeleteObjectsActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.insets = new Insets(5, 2, 2, 2);
+        panObjectAdd.add(btnDeleteObjects, gridBagConstraints);
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 7;
@@ -1041,8 +1112,8 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
-        gridBagConstraints.insets = new Insets(10, 2, 2, 2);
-        panObjekt.add(panButtonsObjekt, gridBagConstraints);
+        gridBagConstraints.insets = new Insets(0, 2, 2, 2);
+        panObjekt.add(panObjectAdd, gridBagConstraints);
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -1490,26 +1561,28 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         showFoto();
     }//GEN-LAST:event_lstFotosValueChanged
 
-    private void btnAddObjektActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnAddObjektActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnAddObjektActionPerformed
-
-    private void btnRemoveObjektActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnRemoveObjektActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnRemoveObjektActionPerformed
-
     private void btnAddGebietActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnAddGebietActionPerformed
-        if (getCidsBean() != null) {
-            final Object selectedItem = comboBoxFilterDialogGebiet.showAndGetSelected();
-            try {
-                if (selectedItem instanceof CidsBean) {
-                    cidsBean = TableUtils.addBeanToCollectionWithMessage(StaticSwingTools.getParentFrame(this),
-                            getCidsBean(),
-                            FIELD__GEBIET,
-                            (CidsBean)selectedItem);
+        if (getCidsBean().getProperty(FIELD__GEOREFERENZ_POINT) == null) {
+                // Meldung nicht moeglich
+                JOptionPane.showMessageDialog(StaticSwingTools.getParentFrame(this),
+                    NbBundle.getMessage(SubObjectEditor.class, BUNDLE_PANE_PREFIX_GEBIET)
+                    + NbBundle.getMessage(SubObjectEditor.class, BUNDLE_PANE_GEBIET)
+                    + NbBundle.getMessage(SubObjectEditor.class, BUNDLE_PANE_SUFFIX),
+                    NbBundle.getMessage(SubObjectEditor.class, BUNDLE_PANE_TITLE_GEBIET),
+                    JOptionPane.WARNING_MESSAGE);
+        } else {
+            if (getCidsBean() != null) {
+                final Object selectedItem = comboBoxFilterDialogGebiet.showAndGetSelected();
+                try {
+                    if (selectedItem instanceof CidsBean) {
+                        cidsBean = TableUtils.addBeanToCollectionWithMessage(StaticSwingTools.getParentFrame(this),
+                                getCidsBean(),
+                                FIELD__GEBIET,
+                                (CidsBean)selectedItem);
+                    }
+                } catch (Exception ex) {
+                    LOG.error(ex, ex);
                 }
-            } catch (Exception ex) {
-                LOG.error(ex, ex);
             }
         }
     }//GEN-LAST:event_btnAddGebietActionPerformed
@@ -1624,6 +1697,79 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         }
     }//GEN-LAST:event_btnDeleteGebieteActionPerformed
 
+    private void btnAddObjectActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnAddObjectActionPerformed
+        if (getCidsBean() != null) {
+            if (getCidsBean().getProperty(FIELD__GEOREFERENZ_POINT) == null) {
+                // Meldung nicht moeglich
+                JOptionPane.showMessageDialog(StaticSwingTools.getParentFrame(this),
+                    NbBundle.getMessage(SubObjectEditor.class, BUNDLE_PANE_PREFIX_OBJECT)
+                    + NbBundle.getMessage(SubObjectEditor.class, BUNDLE_PANE_OBJECT)
+                    + NbBundle.getMessage(SubObjectEditor.class, BUNDLE_PANE_SUFFIX),
+                    NbBundle.getMessage(SubObjectEditor.class, BUNDLE_PANE_TITLE_OBJECT),
+                    JOptionPane.WARNING_MESSAGE);
+            } else {
+                if (getCidsBean().getProperty(FIELD__GEOM_POINT) != null){
+                    //searchObjectGeomLw.getMonSearch().setGebietId(getCidsBean().getPrimaryKeyValue());
+                    //searchObjectGeomLw.getMonSearch().setPoint((Geometry) getCidsBean().getProperty(FIELD__GEOM_POINT));
+                    searchObjectGeom.setGebietId(getCidsBean().getPrimaryKeyValue());
+                    searchObjectGeom.setPoint((Geometry) getCidsBean().getProperty(FIELD__GEOM_POINT));
+                    comboBoxFilterDialogObject.refresh();
+                    final Object selectedItem = comboBoxFilterDialogObject.showAndGetSelected();
+                    try {
+                        if (selectedItem instanceof CidsBean) {
+                            cidsBean = TableUtils.addBeanToCollectionWithMessage(StaticSwingTools.getParentFrame(this),
+                                    getCidsBean(),
+                                    FIELD__OBJECT,
+                                    (CidsBean)selectedItem);
+                        }
+                    } catch (Exception ex) {
+                        LOG.error(ex, ex);
+                    } 
+                } else{
+
+                }
+            }        
+        }
+    }//GEN-LAST:event_btnAddObjectActionPerformed
+
+    private void btnRemObjectActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnRemObjectActionPerformed
+        final Object selection = lstObjekt.getSelectedValue();
+        if (selection != null) {
+            final int answer = JOptionPane.showConfirmDialog(StaticSwingTools.getParentFrame(this),
+                    NbBundle.getMessage(SubObjectEditor.class, BUNDLE_OBJECT_QUESTION),
+                    NbBundle.getMessage(SubObjectEditor.class, BUNDLE_OBJECT_TITLE),
+                    JOptionPane.YES_NO_OPTION);
+            if (answer == JOptionPane.YES_OPTION) {
+                try {
+                    cidsBean = TableUtils.deleteItemFromList(getCidsBean(), FIELD__OBJECT, selection, false);
+                } catch (Exception ex) {
+                    final ErrorInfo ei = new ErrorInfo(
+                            BUNDLE_OBJECT_ERRORTITLE,
+                            BUNDLE_OBJECT_ERRORTEXT,
+                            null,
+                            null,
+                            ex,
+                            Level.SEVERE,
+                            null);
+                    JXErrorPane.showDialog(this, ei);
+                }
+            }
+        }
+    }//GEN-LAST:event_btnRemObjectActionPerformed
+
+    private void btnDeleteObjectsActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnDeleteObjectsActionPerformed
+        // Meldung: wirklich loeschen?
+        final int answer = JOptionPane.showConfirmDialog(
+            StaticSwingTools.getParentFrame(this),
+            NbBundle.getMessage(SubObjectEditor.class, BUNDLE_PANE_MESSAGE_DEL_OBJECT),
+            NbBundle.getMessage(SubObjectEditor.class, BUNDLE_PANE_TITLE_DEL_OBJECT),
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE);
+        if (answer == JOptionPane.YES_OPTION) {
+            deleteObjects();
+        }
+    }//GEN-LAST:event_btnDeleteObjectsActionPerformed
+
     public void deleteGebiete(){
         /*final Collection<CidsBean> collectionGebiet = 
                 getCidsBean().getBeanCollectionProperty(FIELD__GEBIET);
@@ -1643,6 +1789,10 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
             }
         }*/
         getCidsBean().getBeanCollectionProperty(FIELD__GEBIET).clear();
+    }
+    
+    public void deleteObjects(){
+        getCidsBean().getBeanCollectionProperty(FIELD__OBJECT).clear();
     }
     
     public boolean isEditor() {
@@ -1999,7 +2149,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
             
 
             // name vorhanden
-            try {
+           /* try {
                 if (txtName.getText().trim().isEmpty()) {
                     LOG.warn("No name specified. Skip persisting.");
                     errorMessage.append(NbBundle.getMessage(SubObjectEditor.class, BUNDLE_NONAME));
@@ -2014,7 +2164,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
             } catch (final MissingResourceException ex) {
                 LOG.warn("Name not given.", ex);
                 save = false;
-            }
+            }*/
 
             // georeferenz muss gefüllt sein
             try {

@@ -44,6 +44,7 @@ import de.cismet.tools.gui.StaticSwingTools;
  *
  * @author   jruiz
  * @version  $Revision$, $Date$
+ * Sandra (17.11.22): sortDisabled
  */
 public class ComboBoxFilterDialog extends javax.swing.JDialog implements ConnectionContextProvider {
 
@@ -51,7 +52,7 @@ public class ComboBoxFilterDialog extends javax.swing.JDialog implements Connect
 
     private final JComboBox comboBox;
     private final AbstractMonToLwmoSearch search;
-
+    private final boolean sortDisabled;
     private final ConnectionContext connectionContext;
 
     private SwingWorker<Void, Void> refreshWorker;
@@ -133,9 +134,30 @@ public class ComboBoxFilterDialog extends javax.swing.JDialog implements Connect
             final AbstractMonToLwmoSearch search,
             final String title,
             final ConnectionContext connectionContext) {
+        this(
+                comboBox,
+                search,
+                title,
+                connectionContext,
+                false);
+    }
+    /**
+     * Creates new form ComboBoxFilterDialog.
+     *
+     * @param  comboBox           DOCUMENT ME!
+     * @param  search             DOCUMENT ME!
+     * @param  title              DOCUMENT ME!
+     * @param  connectionContext  DOCUMENT ME!
+     * @param  sortIsDisabled
+     */
+    public ComboBoxFilterDialog(final JComboBox comboBox,
+            final AbstractMonToLwmoSearch search,
+            final String title,
+            final ConnectionContext connectionContext,
+            final boolean sortIsDisabled) {
         this.connectionContext = connectionContext;
         this.search = search;
-
+        this.sortDisabled = sortIsDisabled;
         initComponents();
 
         this.comboBox = (search != null) ? cbSearch : comboBox;
@@ -143,7 +165,9 @@ public class ComboBoxFilterDialog extends javax.swing.JDialog implements Connect
         setTitle((title != null) ? title : "Auswahlfilter");
 
         final TableRowSorter sorter = new TableRowSorter(getSelectionTableModel());
-        sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
+        if (!IsSortDisabled()){
+            sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
+        }
         sorter.setRowFilter(new RowFilter<TableModel, Integer>() {
 
                 @Override
@@ -389,7 +413,7 @@ public class ComboBoxFilterDialog extends javax.swing.JDialog implements Connect
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void tableKeyPressed(final java.awt.event.KeyEvent evt) { //GEN-FIRST:event_tableKeyPressed
+    private void tableKeyPressed(final java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableKeyPressed
         if (KeyEvent.VK_ENTER == evt.getKeyCode()) {
             evt.consume();
             btnApplyActionPerformed(null);
@@ -402,70 +426,71 @@ public class ComboBoxFilterDialog extends javax.swing.JDialog implements Connect
         } else if (KeyEvent.VK_ESCAPE == evt.getKeyCode()) {
             dispose();
         }
-    }                                                                 //GEN-LAST:event_tableKeyPressed
+    }//GEN-LAST:event_tableKeyPressed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void txtFilterKeyTyped(final java.awt.event.KeyEvent evt) { //GEN-FIRST:event_txtFilterKeyTyped
+    private void txtFilterKeyTyped(final java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtFilterKeyTyped
         SwingUtilities.invokeLater(new Runnable() {
 
                 @Override
                 public void run() {
-                    getRowSorter().sort();
-
+                    if (!IsSortDisabled()){
+                        getRowSorter().sort();
+                    }
                     final boolean singleSelected = getRowSorter().getViewRowCount() == 1;
                     final int rowIndex = singleSelected ? 0 : -1;
                     getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
                     btnApply.setEnabled(singleSelected);
                 }
             });
-    } //GEN-LAST:event_txtFilterKeyTyped
+    }//GEN-LAST:event_txtFilterKeyTyped
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void txtFilterKeyPressed(final java.awt.event.KeyEvent evt) { //GEN-FIRST:event_txtFilterKeyPressed
+    private void txtFilterKeyPressed(final java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtFilterKeyPressed
         if ((KeyEvent.VK_DOWN == evt.getKeyCode()) || (KeyEvent.VK_RIGHT == evt.getKeyCode())) {
             getTable().requestFocus();
             getSelectionModel().setSelectionInterval(0, 0);
         } else if (KeyEvent.VK_ESCAPE == evt.getKeyCode()) {
             dispose();
         }
-    }                                                                     //GEN-LAST:event_txtFilterKeyPressed
+    }//GEN-LAST:event_txtFilterKeyPressed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnApplyActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnApplyActionPerformed
+    private void btnApplyActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnApplyActionPerformed
         if (getTable().getSelectedRow() >= 0) {
             final RowSorter rowSorter = getRowSorter();
             getComboBox().setSelectedIndex(rowSorter.convertRowIndexToModel(getTable().getSelectedRow()));
             dispose();
         }
-    }                                                                            //GEN-LAST:event_btnApplyActionPerformed
+    }//GEN-LAST:event_btnApplyActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnCancelActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnCancelActionPerformed
+    private void btnCancelActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         dispose();
-    }                                                                             //GEN-LAST:event_btnCancelActionPerformed
+    }//GEN-LAST:event_btnCancelActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void tableMouseClicked(final java.awt.event.MouseEvent evt) { //GEN-FIRST:event_tableMouseClicked
+    private void tableMouseClicked(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
         if (evt.getClickCount() == 2) {
             if (getTable().getSelectedRow() >= 0) {
                 final RowSorter rowSorter = getRowSorter();
@@ -473,7 +498,7 @@ public class ComboBoxFilterDialog extends javax.swing.JDialog implements Connect
                 dispose();
             }
         }
-    }                                                                     //GEN-LAST:event_tableMouseClicked
+    }//GEN-LAST:event_tableMouseClicked
 
     @Override
     public void setVisible(final boolean b) {
@@ -481,6 +506,10 @@ public class ComboBoxFilterDialog extends javax.swing.JDialog implements Connect
             getComboBox().setSelectedIndex(-1);
         }
         super.setVisible(b);
+    }
+    
+    private boolean IsSortDisabled(){
+        return this.sortDisabled;
     }
 
     /**
