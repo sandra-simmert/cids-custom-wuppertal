@@ -132,7 +132,9 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
     FastBindableReferenceCombo cbGenau;
     private JComboBox cbGeom;
     private ComboBoxFilterDialog comboBoxFilterDialogPoi;
-    private CustomLagePanel customLagePanel;
+    private CustomLagePanel customLagePanelAlkis;
+    private CustomLagePanel customLagePanelLuft;
+    private CustomLagePanel customLagePanelSPW;
     private JLabel lblBemerkung;
     private JLabel lblGenau;
     private JLabel lblGeom;
@@ -194,7 +196,9 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         panContent = new RoundedPanel();
         panGebiet = new JPanel();
         panGeometrie = new JPanel();
-        customLagePanel = new CustomLagePanel();
+        customLagePanelSPW = new CustomLagePanel();
+        customLagePanelLuft = new CustomLagePanel();
+        customLagePanelAlkis = new CustomLagePanel();
         panDaten = new JPanel();
         lblName = new JLabel();
         txtName = new JTextField();
@@ -229,7 +233,21 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        panGeometrie.add(customLagePanel, gridBagConstraints);
+        panGeometrie.add(customLagePanelSPW, gridBagConstraints);
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        panGeometrie.add(customLagePanelLuft, gridBagConstraints);
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        panGeometrie.add(customLagePanelAlkis, gridBagConstraints);
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -259,7 +277,6 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
@@ -269,19 +286,19 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         lblPoi.setFont(new Font("Tahoma", 1, 11)); // NOI18N
         lblPoi.setText("Poi:");
         gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
-        gridBagConstraints.insets = new Insets(2, 0, 2, 5);
+        gridBagConstraints.insets = new Insets(2, 5, 2, 5);
         panDaten.add(lblPoi, gridBagConstraints);
 
         lblBemerkung.setFont(new Font("Tahoma", 1, 11)); // NOI18N
         lblBemerkung.setText("Bemerkung:");
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -314,8 +331,8 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 4;
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -327,12 +344,12 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         lblGenau.setFont(new Font("Tahoma", 1, 11)); // NOI18N
         lblGenau.setText("Genauigkeit der Geometrie:");
         gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
-        gridBagConstraints.insets = new Insets(2, 0, 2, 5);
+        gridBagConstraints.insets = new Insets(2, 5, 2, 5);
         panDaten.add(lblGenau, gridBagConstraints);
 
         cbGenau.setMaximumRowCount(20);
@@ -342,8 +359,8 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         bindingGroup.addBinding(binding);
 
         gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -355,7 +372,7 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         lblGeom.setText("Geometrie:");
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -375,8 +392,7 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         if (isEditor()){
             gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = 1;
-            gridBagConstraints.gridy = 5;
-            gridBagConstraints.gridwidth = 2;
+            gridBagConstraints.gridy = 3;
             gridBagConstraints.fill = GridBagConstraints.BOTH;
             gridBagConstraints.anchor = GridBagConstraints.WEST;
             gridBagConstraints.weightx = 1.0;
@@ -393,8 +409,8 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
             }
         });
         gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new Insets(0, 0, 2, 0);
         panDaten.add(btnAddPoi, gridBagConstraints);
 
@@ -404,8 +420,8 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         bindingGroup.addBinding(binding);
 
         gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -516,19 +532,36 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
      * DOCUMENT ME!
      */
     private void setMapWindow() {
-         String mapUrl = null;
+        String mapUrlSpw = null;
+        String mapUrlAlkis = null;
+        String mapUrlLuft = null;
         Double buffer = 0.0;
         try {
-            mapUrl = SubConfProperties.getInstance().getMapUrl();
+            mapUrlSpw = SubConfProperties.getInstance().getMapUrlGSPW2();
+            mapUrlAlkis = SubConfProperties.getInstance().getMapUrlGAlkis();
+            mapUrlLuft = SubConfProperties.getInstance().getMapUrlGLuft();
             buffer = SubConfProperties.getInstance().getBufferMeter();
         } catch (final Exception ex) {
             LOG.warn("Get no conf properties.", ex);
         }
-        customLagePanel.setMapWindow(getCidsBean(),
+        customLagePanelSPW.setMapWindow(getCidsBean(),
             getConnectionContext(),
-            mapUrl,
+            mapUrlSpw,
             buffer,
             FIELD__GEOREFERENZ);
+        customLagePanelSPW.setTitleKarte("Stadtplan");
+        customLagePanelAlkis.setMapWindow(getCidsBean(),
+            getConnectionContext(),
+            mapUrlAlkis,
+            buffer,
+            FIELD__GEOREFERENZ);
+        customLagePanelAlkis.setTitleKarte("Stadtgrundkarte");
+        customLagePanelLuft.setMapWindow(getCidsBean(),
+            getConnectionContext(),
+            mapUrlLuft,
+            buffer,
+            FIELD__GEOREFERENZ);
+        customLagePanelLuft.setTitleKarte("Orthofoto");
     }
 
     /**
@@ -576,7 +609,9 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
     
     @Override
     public void dispose() {
-        customLagePanel.dispose();
+        customLagePanelSPW.dispose();
+        customLagePanelAlkis.dispose();
+        customLagePanelLuft.dispose();
         if (isEditor()) {
             ((DefaultCismapGeometryComboBoxEditor)cbGeom).dispose();
         } 

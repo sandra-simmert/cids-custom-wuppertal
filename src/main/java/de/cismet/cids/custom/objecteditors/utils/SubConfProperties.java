@@ -47,6 +47,9 @@ public class SubConfProperties {
 
     
     private final String mapUrl;
+    private final String mapUrlGLuft;
+    private final String mapUrlGSPW2;
+    private final String mapUrlGAlkis;
     private final Double bufferMeter;
     private final Double bufferGebiet;
 
@@ -61,6 +64,9 @@ public class SubConfProperties {
         bufferMeter = Double.valueOf(readProperty(properties, "BUFFER_METER", null));
         bufferGebiet = Double.valueOf(readProperty(properties, "BUFFER_GEBIET_SEARCH", null));
         mapUrl = String.valueOf(readProperty(properties, "MAP_CALL_STRING", null));
+        mapUrlGAlkis = String.valueOf(readProperty(properties, "MAP_CALL_STRING_GEB_ALKIS", null));
+        mapUrlGLuft = String.valueOf(readProperty(properties, "MAP_CALL_STRING_GEB_LUFT", null));
+        mapUrlGSPW2 = String.valueOf(readProperty(properties, "MAP_CALL_STRING_GEB_SPW2", null));
     }
 
     //~ Methods ----------------------------------------------------------------
