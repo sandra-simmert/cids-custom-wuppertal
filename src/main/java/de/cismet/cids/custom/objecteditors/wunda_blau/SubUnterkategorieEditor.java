@@ -640,17 +640,6 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
             LOG.warn("Name not given.", ex);
             save = false;
         }
-        // farbe vorhanden
-        try {
-            if (txtFarbe.getText().trim().isEmpty()) {
-                LOG.warn("No color specified. Skip persisting.");
-                errorMessage.append(NbBundle.getMessage(SubKategorieEditor.class, BUNDLE_NOFARBE));
-                save = false;
-            } 
-        } catch (final MissingResourceException ex) {
-            LOG.warn("Color not given.", ex);
-            save = false;
-        }
         // Signatur vorhanden
         try {
             if (txtSignatur.getText().trim().isEmpty()) {

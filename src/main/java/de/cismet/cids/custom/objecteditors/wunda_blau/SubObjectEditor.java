@@ -151,6 +151,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
     public static final String FIELD__UNTERKATEGORIE = "fk_unterkategorie";                 // sub_object
     public static final String FIELD__GEBIET = "arr_gebiet";                                // sub_object
     public static final String FIELD__OBJECT = "arr_object";                                // sub_object
+    public static final String FIELD__FARBE = "farbe";                                       // sub_object
     public static final String FIELD__GEOM_POINT = "fk_geom_point.geo_field";                // sub_object-geom
     public static final String FIELD__FOTONAME = "name";                                    // sub_fotos
     public static final String FIELD__UNTERKATEGORIE_GEOMTYP = "fk_unterkategorie.fk_geometrietyp"; 
@@ -293,6 +294,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
     private JLabel lblFarbe;
     private JLabel lblFarbe1;
     private JLabel lblFarbe2;
+    private JLabel lblFarbeAnzeige;
     private JLabel lblGebiet;
     private JLabel lblHeaderDocument;
     private JLabel lblHeaderListe;
@@ -476,6 +478,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         lblAdd = new JLabel();
         txtAdd = new JTextField();
         txtFarbe = new JFormattedTextField(new HexcolorFormatter());
+        lblFarbeAnzeige = new JLabel();
         panGeometrieLine = new JPanel();
         customLagePanelLine = new CustomLagePanel();
         panGeometriePolygon = new JPanel();
@@ -809,11 +812,23 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new Insets(2, 2, 2, 2);
         panDaten.add(txtFarbe, gridBagConstraints);
+
+        lblFarbeAnzeige.setFont(new Font("Tahoma", 1, 11)); // NOI18N
+        lblFarbeAnzeige.setOpaque(true);
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = GridBagConstraints.BOTH;
+        gridBagConstraints.ipady = 10;
+        gridBagConstraints.anchor = GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 0.9;
+        gridBagConstraints.insets = new Insets(2, 5, 2, 2);
+        panDaten.add(lblFarbeAnzeige, gridBagConstraints);
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -1868,6 +1883,9 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
                 cbLine.updateUI();
                 cbPolygon.updateUI();
             }
+            if (getCidsBean() != null && getCidsBean().getProperty(FIELD__FARBE) != null){
+                showColor(getCidsBean().getProperty(FIELD__FARBE).toString());
+            }
         } catch (Exception ex) {
             LOG.error("Bean not set", ex);
         }
@@ -2138,9 +2156,21 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
             allowWeitereInfo();
             allowGeom();
         }
+        if (evt.getPropertyName().equals(FIELD__FARBE)) {
+            showColor(evt.getNewValue().toString());
+        }
     }
 
+    public void showColor(String value){
+        Color c = new Color(
+            Integer.valueOf(value.substring(1, 3), 16), 
+            Integer.valueOf(value.substring(3, 5), 16), 
+            Integer.valueOf(value.substring(5, 7), 16));
 
+            lblFarbeAnzeige.setBackground(c);
+            lblFarbeAnzeige.setOpaque(true);
+    }
+    
     @Override
     public boolean isOkForSaving() {
         
