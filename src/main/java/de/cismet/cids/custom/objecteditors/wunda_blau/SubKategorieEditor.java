@@ -63,6 +63,7 @@ import de.cismet.connectioncontext.ConnectionContext;
 import de.cismet.tools.gui.RoundedPanel;
 import de.cismet.tools.gui.StaticSwingTools;
 import de.cismet.tools.gui.log4jquickconfig.Log4JQuickConfig;
+import java.awt.Color;
 import java.awt.Dimension;
 /**
  * DOCUMENT ME!
@@ -82,6 +83,7 @@ public class SubKategorieEditor extends DefaultCustomObjectEditor implements Cid
     
 
     public static final String FIELD__NAME = "name";                                        // sub_Kategorie
+    public static final String FIELD__FARBE = "farbe";                                      // sub_Kategorie
     public static final String FIELD__ID = "id";                                            // sub_Kategorie
     public static final String TABLE_NAME = "sub_kategorie";
 
@@ -107,6 +109,7 @@ public class SubKategorieEditor extends DefaultCustomObjectEditor implements Cid
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private Box.Filler filler1;
     private JLabel lblFarbe;
+    private JLabel lblFarbeAnzeige;
     private JLabel lblName;
     private JLabel lblSignatur;
     private JPanel panContent;
@@ -165,6 +168,7 @@ public class SubKategorieEditor extends DefaultCustomObjectEditor implements Cid
         lblSignatur = new JLabel();
         txtSignatur = new JTextField();
         txtFarbe = new JFormattedTextField(new HexcolorFormatter());
+        lblFarbeAnzeige = new JLabel();
         filler1 = new Box.Filler(new Dimension(0, 0), new Dimension(0, 0), new Dimension(0, 0));
 
         setLayout(new GridBagLayout());
@@ -193,6 +197,7 @@ public class SubKategorieEditor extends DefaultCustomObjectEditor implements Cid
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
@@ -227,6 +232,7 @@ public class SubKategorieEditor extends DefaultCustomObjectEditor implements Cid
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
@@ -240,9 +246,21 @@ public class SubKategorieEditor extends DefaultCustomObjectEditor implements Cid
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weightx = 0.1;
         gridBagConstraints.insets = new Insets(2, 2, 2, 2);
         panKategorie.add(txtFarbe, gridBagConstraints);
+
+        lblFarbeAnzeige.setFont(new Font("Tahoma", 1, 11)); // NOI18N
+        lblFarbeAnzeige.setOpaque(true);
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = GridBagConstraints.BOTH;
+        gridBagConstraints.ipady = 10;
+        gridBagConstraints.anchor = GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 0.9;
+        gridBagConstraints.insets = new Insets(2, 5, 2, 2);
+        panKategorie.add(lblFarbeAnzeige, gridBagConstraints);
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -299,6 +317,9 @@ public class SubKategorieEditor extends DefaultCustomObjectEditor implements Cid
             }
             bindingGroup.bind();
             setTitle(getTitle());
+            if (getCidsBean() != null && getCidsBean().getProperty(FIELD__FARBE) != null){
+                showColor(getCidsBean().getProperty(FIELD__FARBE).toString());
+            }
             
         } catch (Exception ex) {
             LOG.error("Bean not set", ex);
@@ -373,11 +394,21 @@ public class SubKategorieEditor extends DefaultCustomObjectEditor implements Cid
 
     @Override
     public void propertyChange(final PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals(FIELD__NAME)) {
+        if (evt.getPropertyName().equals(FIELD__FARBE)) {
+            showColor(evt.getNewValue().toString());
         }
     }
 
+    public void showColor(String value){
+        Color c = new Color(
+            Integer.valueOf(value.substring(1, 3), 16), 
+            Integer.valueOf(value.substring(3, 5), 16), 
+            Integer.valueOf(value.substring(5, 7), 16));
 
+            lblFarbeAnzeige.setBackground(c);
+            lblFarbeAnzeige.setOpaque(true);
+    }
+    
     @Override
     public boolean isOkForSaving() {
         boolean save = true;

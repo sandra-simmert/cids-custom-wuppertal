@@ -67,6 +67,7 @@ import de.cismet.connectioncontext.ConnectionContext;
 import de.cismet.tools.gui.RoundedPanel;
 import de.cismet.tools.gui.StaticSwingTools;
 import de.cismet.tools.gui.log4jquickconfig.Log4JQuickConfig;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.util.Arrays;
 import java.util.List;
@@ -89,9 +90,10 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
     private static DefaultBindableReferenceCombo.Option SORTING_OPTION =
         new DefaultBindableReferenceCombo.SortingColumnOption("name");
 
-    public static final String FIELD__NAME = "name";                                        // sub_Unterkategorie
-    public static final String FIELD__KANN = "arr_weitere_info_kann";                       // sub_Unterkategorie
-    public static final String FIELD__MUSS = "arr_weitere_info_muss";                       // sub_Unterkategorie
+    public static final String FIELD__NAME = "name";                                         // sub_Unterkategorie
+    public static final String FIELD__KANN = "arr_weitere_info_kann";                        // sub_Unterkategorie
+    public static final String FIELD__MUSS = "arr_weitere_info_muss";                        // sub_Unterkategorie
+    public static final String FIELD__FARBE = "farbe";                                       // sub_Unterkategorie
     public static final String FIELD__ID = "id";                                            // sub_Kategorie
     public static final String TABLE_NAME = "sub_unterkategorie";
 
@@ -122,6 +124,7 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
     FastBindableReferenceCombo cbKategorie;
     private Box.Filler filler1;
     private JLabel lblFarbe;
+    private JLabel lblFarbeAnzeige;
     private JLabel lblGeometrietyp;
     private JLabel lblKann;
     private JLabel lblKategorie;
@@ -195,6 +198,7 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
         lblKategorie = new JLabel();
         cbKategorie = new FastBindableReferenceCombo();
         txtFarbe = new JFormattedTextField(new HexcolorFormatter());
+        lblFarbeAnzeige = new JLabel();
         filler1 = new Box.Filler(new Dimension(0, 0), new Dimension(0, 0), new Dimension(0, 0));
 
         setLayout(new GridBagLayout());
@@ -223,6 +227,7 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
@@ -257,6 +262,7 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
@@ -285,7 +291,7 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.gridheight = 3;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
@@ -314,7 +320,7 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 6;
-        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.gridheight = 3;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
@@ -341,6 +347,7 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
@@ -367,6 +374,7 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
@@ -383,6 +391,18 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new Insets(2, 2, 2, 2);
         panKategorie.add(txtFarbe, gridBagConstraints);
+
+        lblFarbeAnzeige.setFont(new Font("Tahoma", 1, 11)); // NOI18N
+        lblFarbeAnzeige.setOpaque(true);
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = GridBagConstraints.BOTH;
+        gridBagConstraints.ipady = 10;
+        gridBagConstraints.anchor = GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 0.9;
+        gridBagConstraints.insets = new Insets(2, 5, 2, 2);
+        panKategorie.add(lblFarbeAnzeige, gridBagConstraints);
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -451,7 +471,9 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
             if (getCidsBean() != null){
                 labelsPanels.addAll(Arrays.asList(blpKann, blpMuss));
             }
-            
+            if (getCidsBean() != null && getCidsBean().getProperty(FIELD__FARBE) != null){
+                showColor(getCidsBean().getProperty(FIELD__FARBE).toString());
+            }
         } catch (Exception ex) {
             LOG.error("Bean not set", ex);
         }
@@ -579,9 +601,21 @@ public class SubUnterkategorieEditor extends DefaultCustomObjectEditor implement
                     }
                 }
             }
+            case FIELD__FARBE: {
+                showColor(evt.getNewValue().toString());
+            }
         }
     }
 
+    public void showColor(String value){
+        Color c = new Color(
+            Integer.valueOf(value.substring(1, 3), 16), 
+            Integer.valueOf(value.substring(3, 5), 16), 
+            Integer.valueOf(value.substring(5, 7), 16));
+
+            lblFarbeAnzeige.setBackground(c);
+            lblFarbeAnzeige.setOpaque(true);
+    }
 
     @Override
     public boolean isOkForSaving() {
