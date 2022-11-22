@@ -597,19 +597,21 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         lblName.setText("Name:");
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.insets = new Insets(2, 0, 2, 5);
         panDaten.add(lblName, gridBagConstraints);
 
+        txtName.setEnabled(false);
+
         Binding binding = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${cidsBean.name}"), txtName, BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -621,7 +623,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         lblFarbe.setText("Farbe:");
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -632,7 +634,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         lblUnter.setText("Unterkategorie:");
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -641,13 +643,14 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
 
         cbUnter.setMaximumRowCount(20);
         cbUnter.setModel(new LoadModelCb());
+        cbUnter.setNullable(false);
 
         binding = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${cidsBean.fk_unterkategorie}"), cbUnter, BeanProperty.create("selectedItem"));
         bindingGroup.addBinding(binding);
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -659,7 +662,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         lblPoint.setText("Punkt:");
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -682,8 +685,8 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         if (isEditor()){
             gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = 1;
-            gridBagConstraints.gridy = 3;
-            gridBagConstraints.gridwidth = 4;
+            gridBagConstraints.gridy = 4;
+            gridBagConstraints.gridwidth = 3;
             gridBagConstraints.fill = GridBagConstraints.BOTH;
             gridBagConstraints.anchor = GridBagConstraints.WEST;
             gridBagConstraints.weightx = 1.0;
@@ -695,7 +698,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         lblLine.setText("Linie:");
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -716,8 +719,8 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         if (isEditor()){
             gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = 1;
-            gridBagConstraints.gridy = 4;
-            gridBagConstraints.gridwidth = 4;
+            gridBagConstraints.gridy = 5;
+            gridBagConstraints.gridwidth = 3;
             gridBagConstraints.fill = GridBagConstraints.BOTH;
             gridBagConstraints.anchor = GridBagConstraints.WEST;
             gridBagConstraints.weightx = 1.0;
@@ -729,7 +732,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         lblPolygon.setText("Fläche:");
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -750,8 +753,8 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         if (isEditor()){
             gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = 1;
-            gridBagConstraints.gridy = 5;
-            gridBagConstraints.gridwidth = 4;
+            gridBagConstraints.gridy = 6;
+            gridBagConstraints.gridwidth = 3;
             gridBagConstraints.fill = GridBagConstraints.BOTH;
             gridBagConstraints.anchor = GridBagConstraints.WEST;
             gridBagConstraints.weightx = 1.0;
@@ -763,19 +766,21 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         lblWert.setText("dgm-Wert:");
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.insets = new Insets(2, 0, 2, 5);
         panDaten.add(lblWert, gridBagConstraints);
 
+        txtWert.setEnabled(false);
+
         binding = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${cidsBean.dgm_wert}"), txtWert, BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
@@ -787,31 +792,35 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         lblAdd.setToolTipText("");
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
-        gridBagConstraints.insets = new Insets(2, 0, 2, 5);
+        gridBagConstraints.insets = new Insets(2, 5, 2, 5);
         panDaten.add(lblAdd, gridBagConstraints);
+
+        txtAdd.setEnabled(false);
 
         binding = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${cidsBean.dgm_addition}"), txtAdd, BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new Insets(2, 2, 2, 2);
         panDaten.add(txtAdd, gridBagConstraints);
 
+        txtFarbe.setEnabled(false);
+
         binding = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${cidsBean.farbe}"), txtFarbe, BeanProperty.create("value"));
         bindingGroup.addBinding(binding);
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new Insets(2, 2, 2, 2);
@@ -821,7 +830,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         lblFarbeAnzeige.setOpaque(true);
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
@@ -931,6 +940,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         btnAddGebiet.setIcon(new ImageIcon(getClass().getResource("/de/cismet/cids/custom/objecteditors/wunda_blau/edit_add_mini.png"))); // NOI18N
         btnAddGebiet.setBorderPainted(false);
         btnAddGebiet.setContentAreaFilled(false);
+        btnAddGebiet.setEnabled(false);
         btnAddGebiet.setFocusPainted(false);
         btnAddGebiet.setMaximumSize(new Dimension(45, 22));
         btnAddGebiet.setMinimumSize(new Dimension(45, 22));
@@ -949,6 +959,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         btnRemGebiet.setIcon(new ImageIcon(getClass().getResource("/de/cismet/cids/custom/objecteditors/wunda_blau/edit_remove_mini.png"))); // NOI18N
         btnRemGebiet.setBorderPainted(false);
         btnRemGebiet.setContentAreaFilled(false);
+        btnRemGebiet.setEnabled(false);
         btnRemGebiet.setFocusPainted(false);
         btnRemGebiet.setMaximumSize(new Dimension(45, 22));
         btnRemGebiet.setMinimumSize(new Dimension(45, 22));
@@ -972,6 +983,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
 
         btnCreateGebiete.setIcon(new ImageIcon(getClass().getResource("/de/cismet/cids/custom/objecteditors/wunda_blau/wizard.png"))); // NOI18N
         btnCreateGebiete.setToolTipText("Standorte anlegen");
+        btnCreateGebiete.setEnabled(false);
         btnCreateGebiete.setMaximumSize(new Dimension(45, 28));
         btnCreateGebiete.setMinimumSize(new Dimension(45, 28));
         btnCreateGebiete.setPreferredSize(new Dimension(45, 28));
@@ -988,6 +1000,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
 
         btnDeleteGebiete.setIcon(new ImageIcon(getClass().getResource("/de/cismet/cids/custom/objecteditors/wunda_blau/edit-delete.png"))); // NOI18N
         btnDeleteGebiete.setToolTipText("Standorte entfernen");
+        btnDeleteGebiete.setEnabled(false);
         btnDeleteGebiete.setMaximumSize(new Dimension(45, 21));
         btnDeleteGebiete.setMinimumSize(new Dimension(45, 21));
         btnDeleteGebiete.setPreferredSize(new Dimension(45, 28));
@@ -1066,6 +1079,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         btnAddObject.setIcon(new ImageIcon(getClass().getResource("/de/cismet/cids/custom/objecteditors/wunda_blau/edit_add_mini.png"))); // NOI18N
         btnAddObject.setBorderPainted(false);
         btnAddObject.setContentAreaFilled(false);
+        btnAddObject.setEnabled(false);
         btnAddObject.setFocusPainted(false);
         btnAddObject.setMaximumSize(new Dimension(45, 22));
         btnAddObject.setMinimumSize(new Dimension(45, 22));
@@ -1084,6 +1098,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         btnRemObject.setIcon(new ImageIcon(getClass().getResource("/de/cismet/cids/custom/objecteditors/wunda_blau/edit_remove_mini.png"))); // NOI18N
         btnRemObject.setBorderPainted(false);
         btnRemObject.setContentAreaFilled(false);
+        btnRemObject.setEnabled(false);
         btnRemObject.setFocusPainted(false);
         btnRemObject.setMaximumSize(new Dimension(45, 22));
         btnRemObject.setMinimumSize(new Dimension(45, 22));
@@ -1107,6 +1122,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
 
         btnDeleteObjects.setIcon(new ImageIcon(getClass().getResource("/de/cismet/cids/custom/objecteditors/wunda_blau/edit-delete.png"))); // NOI18N
         btnDeleteObjects.setToolTipText("Standorte entfernen");
+        btnDeleteObjects.setEnabled(false);
         btnDeleteObjects.setMaximumSize(new Dimension(45, 21));
         btnDeleteObjects.setMinimumSize(new Dimension(45, 21));
         btnDeleteObjects.setPreferredSize(new Dimension(45, 28));
@@ -1426,6 +1442,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         panOffen.add(lblOffen, gridBagConstraints);
 
         chOffen.setContentAreaFilled(false);
+        chOffen.setEnabled(false);
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -1446,6 +1463,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         panOffen.add(lblWartung, gridBagConstraints);
 
         chWartung.setContentAreaFilled(false);
+        chWartung.setEnabled(false);
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
@@ -1874,9 +1892,12 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
             bindingGroup.bind();
                
             setTitle(getTitle());
-            if (getCidsBean()!=null){
+            if (getCidsBean()!=null && isEditor()){
                 allowWeitereInfo();
                 allowGeom();
+                if (getCidsBean().getProperty(FIELD__UNTERKATEGORIE) != null){
+                    allowEditAttributes();
+                }
             }
             if (isEditor()) {
                 cbPoint.updateUI();
@@ -2155,6 +2176,7 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         if (evt.getPropertyName().equals(FIELD__UNTERKATEGORIE)) {
             allowWeitereInfo();
             allowGeom();
+            allowEditAttributes();
         }
         if (evt.getPropertyName().equals(FIELD__FARBE)) {
             showColor(evt.getNewValue().toString());
@@ -2245,6 +2267,23 @@ public class SubObjectEditor extends DefaultCustomObjectEditor implements CidsBe
         } catch (ConnectionException ex) {
             LOG.warn("problem in beforeSaving.", ex);
         }
+    }
+    
+    public void allowEditAttributes(){
+        txtName.setEnabled(true);
+        txtAdd.setEnabled(true);
+        txtFarbe.setEnabled(true);
+        txtWert.setEnabled(true);
+        chOffen.setEnabled(true);
+        chWartung.setEnabled(true);
+        taBemerkung.setEnabled(true);
+        btnAddGebiet.setEnabled(true);
+        btnAddObject.setEnabled(true);
+        btnCreateGebiete.setEnabled(true);
+        btnDeleteGebiete.setEnabled(true);
+        btnDeleteObjects.setEnabled(true);
+        btnRemGebiet.setEnabled(true);
+        btnRemObject.setEnabled(true);
     }
 
     //~ Inner Classes ----------------------------------------------------------
