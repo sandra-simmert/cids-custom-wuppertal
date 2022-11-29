@@ -131,6 +131,7 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
     private JButton btnAddPoi;
     FastBindableReferenceCombo cbGenau;
     private JComboBox cbGeom;
+    private JCheckBox chOffen;
     private ComboBoxFilterDialog comboBoxFilterDialogPoi;
     private CustomLagePanel customLagePanelAlkis;
     private CustomLagePanel customLagePanelLuft;
@@ -140,6 +141,7 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
     private JLabel lblGeom;
     private JLabel lblName;
     private JLabel lblName1;
+    private JLabel lblOffen;
     private JLabel lblPoi;
     private JPanel panBemerkung;
     private JPanel panContent;
@@ -215,6 +217,8 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         }
         btnAddPoi = new JButton();
         lblName1 = new JLabel();
+        lblOffen = new JLabel();
+        chOffen = new JCheckBox();
 
         setLayout(new GridBagLayout());
 
@@ -240,6 +244,7 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new Insets(0, 5, 0, 5);
         panGeometrie.add(customLagePanelLuft, gridBagConstraints);
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -332,7 +337,7 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.gridwidth = 6;
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -409,7 +414,7 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
             }
         });
         gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new Insets(0, 0, 2, 0);
         panDaten.add(btnAddPoi, gridBagConstraints);
@@ -422,12 +427,39 @@ public class SubGebietEditor extends DefaultCustomObjectEditor implements CidsBe
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new Insets(2, 2, 2, 5);
         panDaten.add(lblName1, gridBagConstraints);
+
+        lblOffen.setFont(new Font("Tahoma", 1, 11)); // NOI18N
+        lblOffen.setText("Veröffentlicht:");
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = GridBagConstraints.BOTH;
+        gridBagConstraints.ipady = 10;
+        gridBagConstraints.anchor = GridBagConstraints.WEST;
+        gridBagConstraints.insets = new Insets(2, 5, 2, 5);
+        panDaten.add(lblOffen, gridBagConstraints);
+
+        chOffen.setContentAreaFilled(false);
+
+        binding = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${cidsBean.veroeffentlicht}"), chOffen, BeanProperty.create("selected"));
+        binding.setSourceNullValue(false);
+        binding.setSourceUnreadableValue(false);
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = GridBagConstraints.WEST;
+        gridBagConstraints.insets = new Insets(2, 2, 2, 2);
+        panDaten.add(chOffen, gridBagConstraints);
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
